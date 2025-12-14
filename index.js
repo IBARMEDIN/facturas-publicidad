@@ -225,7 +225,8 @@ http.createServer(async (req, res) => {
 
     ${resultado}
   `));
+  const PORT = process.env.PORT || 3000;
 
-}).listen(3000, () => {
-  console.log("Servidor activo en http://localhost:3000");
+}).listen(PORT, () => {
+  console.log(`Servidor activo en el puerto ${PORT}`);
 });
