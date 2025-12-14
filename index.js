@@ -4,15 +4,33 @@ const path = require("path");
 
 /* ================= CONFIG ================= */
 
-const USUARIO_ACTUAL = "antonio@farmavazquez.com";
-const MODO_PRUEBA = false; // true = no escribe en Ninox
+const PORT = process.env.PORT || 3000;
+const MODO_PRUEBA = false; // true = NO escribe en Ninox
 
+// --- Ninox ---
 const API_TOKEN = "06e70df0-aaf1-11ee-bae2-a37a2451cc56";
 const TEAM_ID = "s9vR3WrdvHijnidTJ";
 const DB_ID = "ykya5csft4b4";
-const TABLE_ID = "ZD"; // Facturas Publicidad
+const TABLE_ID = "ZD";
 
-const PORT = process.env.PORT || 3000;
+// --- Usuarios (login simple) ---
+const USUARIOS = [
+  {
+    email: "antonio@farmavazquez.com",
+    password: "1234",
+    nombre: "Antonio",
+    rol: "admin"
+  },
+  {
+    email: "virginia.peirat@farmavazquez.com",
+    password: "abcd",
+    nombre: "Virginia",
+    rol: "usuario"
+  }
+];
+
+// --- Sesiones en memoria ---
+const SESIONES = {};
 
 /* ================= HELPERS ================= */
 
@@ -29,6 +47,16 @@ function fechaES(iso) {
 function renderPage(content) {
   const base = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
   return base.replace("{{CONTENT}}", content);
+}
+
+function obtenerUsuarioDesdeCookie(req) {
+  const cookie = req.headers.cookie;
+  if (!cookie) return null;
+
+  const match = cookie.match(/session=([a-zA-Z0-9]+)/);
+  if (!match) return null;
+
+  return SESIONES[match[1]] || null;
 }
 
 async function obtenerNombreLaboratorio(id) {
@@ -56,7 +84,74 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  /* ================= POST ================= */
+  /* ================= LOGIN ================= */
+
+  // --- GET /login ---
+  if (req.method === "GET" && url.pathname === "/login") {
+    res.end(renderPage(`
+      <section class="card">
+        <h2>Acceso al ERP</h2>
+
+        <form method="POST" action="/login">
+          <label>Email<br>
+            <input type="email" name="email" required>
+          </label><br><br>
+
+          <label>Contraseña<br>
+            <input type="password" name="password" required>
+          </label><br><br>
+
+          <button>Entrar</button>
+        </form>
+      </section>
+    `));
+    return;
+  }
+
+  // --- POST /login ---
+  if (req.method === "POST" && url.pathname === "/login") {
+    let body = "";
+    for await (const chunk of req) body += chunk;
+    const p = new URLSearchParams(body);
+
+    const email = p.get("email");
+    const password = p.get("password");
+
+    const user = USUARIOS.find(
+      u => u.email === email && u.password === password
+    );
+
+    if (!user) {
+      res.end(renderPage(`<p>Credenciales incorrectas</p><a href="/login">Volver</a>`));
+      return;
+    }
+
+    const sessionId = Math.random().toString(36).slice(2);
+    SESIONES[sessionId] = {
+      email: user.email,
+      nombre: user.nombre,
+      rol: user.rol
+    };
+
+    res.writeHead(302, {
+      "Set-Cookie": `session=${sessionId}; HttpOnly; Path=/`,
+      Location: "/"
+    });
+    res.end();
+    return;
+  }
+
+  /* ================= PROTECCIÓN ================= */
+
+  const usuarioSesion = obtenerUsuarioDesdeCookie(req);
+
+  if (!usuarioSesion && url.pathname !== "/login") {
+    res.writeHead(302, { Location: "/login" });
+    res.end();
+    return;
+  }
+
+  /* ================= POST ERP ================= */
 
   if (req.method === "POST") {
     let body = "";
@@ -71,10 +166,11 @@ const server = http.createServer(async (req, res) => {
     const importeMovimiento = Number(
       (p.get("importeMovimiento") || "").replace(",", ".")
     );
-    const usuario = p.get("usuario");
+
+    const usuario = usuarioSesion.email;
 
     if (!recordId) {
-      res.end(renderPage(`<p>Error interno: falta ID de factura</p>`));
+      res.end(renderPage(`<p>Error interno: falta ID</p>`));
       return;
     }
 
@@ -83,17 +179,17 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    /* ===== PREVISUALIZAR ===== */
+    // ===== PREVISUALIZAR =====
     if (accion === "previsualizar") {
       res.end(renderPage(`
         <section class="card">
           <h2>Confirmar cobro</h2>
 
           <p><strong>Factura:</strong> ${numeroFactura}</p>
-          <p><strong>Fecha de cobro:</strong> ${fechaES(fechaCobro)}</p>
+          <p><strong>Fecha:</strong> ${fechaES(fechaCobro)}</p>
           <p><strong>Banco:</strong> ${banco}</p>
-          <p><strong>Importe del movimiento:</strong> ${importeMovimiento.toFixed(2)} €</p>
-          <p><strong>Puesta en cobrado por:</strong> ${usuario}</p>
+          <p><strong>Importe:</strong> ${importeMovimiento.toFixed(2)} €</p>
+          <p><strong>Usuario:</strong> ${usuario}</p>
 
           <form method="POST" onsubmit="return bloquear(this)">
             <input type="hidden" name="accion" value="confirmar">
@@ -102,7 +198,6 @@ const server = http.createServer(async (req, res) => {
             <input type="hidden" name="fechaCobro" value="${fechaCobro}">
             <input type="hidden" name="banco" value="${banco}">
             <input type="hidden" name="importeMovimiento" value="${importeMovimiento}">
-            <input type="hidden" name="usuario" value="${usuario}">
 
             <button id="btnConfirmar">✅ Confirmar cobro</button>
 
@@ -115,12 +210,10 @@ const server = http.createServer(async (req, res) => {
           </form>
 
           <script>
-            function bloquear(form) {
-              const btn = document.getElementById("btnConfirmar");
-              const sp = document.getElementById("spinner");
-              btn.disabled = true;
-              btn.textContent = "Confirmando…";
-              sp.style.display = "flex";
+            function bloquear() {
+              document.getElementById("btnConfirmar").disabled = true;
+              document.getElementById("btnConfirmar").innerText = "Confirmando…";
+              document.getElementById("spinner").style.display = "flex";
               return true;
             }
           </script>
@@ -129,19 +222,11 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    /* ===== CONFIRMAR (PUT) ===== */
+    // ===== CONFIRMAR =====
     if (accion === "confirmar") {
 
       if (MODO_PRUEBA) {
-        res.end(renderPage(`
-          <pre>${JSON.stringify({
-            Pagada: "Pagada",
-            "Fecha de cobro": fechaCobro,
-            Banco: banco,
-            "Importe del movimiento": importeMovimiento,
-            Usuario: usuario
-          }, null, 2)}</pre>
-        `));
+        res.end(renderPage(`<pre>SIMULACIÓN OK</pre>`));
         return;
       }
 
@@ -174,7 +259,7 @@ const server = http.createServer(async (req, res) => {
 
       res.end(renderPage(`
         <section class="card success">
-          <h2>✅ Factura cobrada correctamente</h2>
+          <h2>✅ Factura cobrada</h2>
           <p>${numeroFactura}</p>
           <a href="/">Volver</a>
         </section>
@@ -183,7 +268,7 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  /* ================= GET ================= */
+  /* ================= GET ERP ================= */
 
   const numeroFactura = url.searchParams.get("factura");
   let resultado = "";
@@ -213,13 +298,12 @@ const server = http.createServer(async (req, res) => {
         <section class="card">
           <h2>Factura ${numeroFactura}</h2>
           <p><strong>Laboratorio:</strong> ${lab}</p>
-          <p><strong>Importe total:</strong> ${imp} €</p>
+          <p><strong>Importe:</strong> ${imp} €</p>
 
           <form method="POST">
             <input type="hidden" name="accion" value="previsualizar">
             <input type="hidden" name="numeroFactura" value="${numeroFactura}">
             <input type="hidden" name="recordId" value="${d.id}">
-            <input type="hidden" name="usuario" value="${USUARIO_ACTUAL}">
 
             <label>Fecha de cobro<br>
               <input type="date" name="fechaCobro" value="${nowISO().slice(0,10)}">
@@ -243,6 +327,7 @@ const server = http.createServer(async (req, res) => {
   res.end(renderPage(`
     <section class="card">
       <h2>Buscar factura</h2>
+      <p>Usuario: <strong>${usuarioSesion.email}</strong></p>
       <form method="GET">
         <input name="factura" placeholder="M2025-0289">
         <button>Buscar</button>
