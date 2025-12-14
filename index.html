@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Cobro de facturas · Publicidad</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Cobro de facturas de publicidad</h1>
+</header>
+
+<main class="app-container">
+  {{CONTENT}}
+</main>
+<script>
+  function toggleOtroBanco() {
+    const banco = document.getElementById("banco").value;
+    const otroBanco = document.getElementById("otroBancoContainer");
+
+    if (banco === "OTRO") {
+      otroBanco.style.display = "block";
+    } else {
+      otroBanco.style.display = "none";
+    }
+  }
+</script>
+</body>
+</html>
