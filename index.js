@@ -42,8 +42,7 @@ async function obtenerNombreLaboratorio(id) {
 
 /* ================= SERVER ================= */
 
-http.createServer(async (req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host}`);
+const server = http.createServer(async (req, res) => {
 
   /* ===== CSS ===== */
   if (url.pathname === "/styles.css") {
