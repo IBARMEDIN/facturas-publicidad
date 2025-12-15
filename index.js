@@ -29,10 +29,10 @@ const TIEMPO_EXPIRACION_MS = 60 * 1000;
 
 /* ===== NINOX ===== */
 
-const API_TOKEN = "06e70df0-aaf1-11ee-bae2-a37a2451cc56";
-const TEAM_ID = "s9vR3WrdvHijnidTJ";
-const DB_ID = "ykya5csft4b4";
-const TABLE_ID = "ZD";
+const API_TOKEN = process.env.API_TOKEN || "06e70df0-aaf1-11ee-bae2-a37a2451cc56";
+const TEAM_ID   = process.env.TEAM_ID   || "s9vR3WrdvHijnidTJ";
+const DB_ID     = process.env.DB_ID     || "ykya5csft4b4";
+const TABLE_ID  = process.env.TABLE_ID  || "ZD";
 
 /* ================= HELPERS ================= */
 
