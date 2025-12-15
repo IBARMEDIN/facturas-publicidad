@@ -1,0 +1,27 @@
+[
+  {
+    "usuario": "Antonio",
+    "passwordHash": "$2b$10$MAO3Ff4AG1cqXgyb1paAwePydQyGNlTPlg.yGTLPWtbOApA3y881.",
+    "rol": "admin"
+  },
+  {
+    "usuario": "Virginia",
+    "passwordHash": null,
+    "rol": "usuario"
+  },
+  {
+    "usuario": "María",
+    "passwordHash": null,
+    "rol": "usuario"
+  },
+  {
+    "usuario": "Aurora",
+    "passwordHash": null,
+    "rol": "usuario"
+  },
+  {
+    "usuario": "Ruth",
+    "passwordHash": null,
+    "rol": "usuario"
+  }
+]

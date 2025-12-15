@@ -1,30 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Cobro de facturas · Publicidad</title>
+  <meta charset="UTF-8">
+  <title>Cobro de facturas</title>
   <link rel="stylesheet" href="/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<header class="app-header">
-  <h1>Cobro de facturas de publicidad</h1>
-</header>
+  <header class="app-header">
+    <h1>Cobro de facturas de publicidad</h1>
+  </header>
 
-<main class="app-container">
-  {{CONTENT}}
-</main>
-<script>
-  function toggleOtroBanco() {
-    const banco = document.getElementById("banco").value;
-    const otroBanco = document.getElementById("otroBancoContainer");
+  <div class="app-container">
+    {{CONTENT}}
+  </div>
 
-    if (banco === "OTRO") {
-      otroBanco.style.display = "block";
-    } else {
-      otroBanco.style.display = "none";
+  <script>
+    function toggleOtroBanco() {
+      const banco = document.getElementById("banco");
+      const otroBanco = document.getElementById("otroBancoContainer");
+      if (!banco || !otroBanco) return;
+
+      otroBanco.style.display = banco.value === "OTRO"
+        ? "block"
+        : "none";
     }
-  }
-</script>
+  </script>
+
 </body>
 </html>

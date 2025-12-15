@@ -1,72 +1,493 @@
+/* ======================================================
+   BASE GENERAL
+====================================================== */
+
 body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                 Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: #f4f6f8;
-    color: #1f2933;
-  }
-  
-  .app-header {
-    background: #1f2933;
-    color: white;
-    padding: 20px 32px;
-  }
-  
-  .app-container {
-    max-width: 900px;
-    margin: 32px auto;
-    padding: 0 16px;
-  }
-  
-  .card {
-    background: white;
-    padding: 24px;
-    border-radius: 8px;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  }
-  
-  h2 {
-    margin-top: 0;
-  }
-  
-  .actions {
-    margin-top: 20px;
-  }
-  
-  button {
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  
-  button.secondary {
-    background: #e5e7eb;
-    color: #1f2933;
-  }
-  /* Spinner (oculto por defecto) */
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+               Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: #f1f3f6;
+  color: #1f2933;
+  line-height: 1.4;
+}
+
+/* ======================================================
+   CONTENEDOR APP
+====================================================== */
+
+.app-container {
+  max-width: 920px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+/* ===== CABECERA ERP ===== */
+
+.app-header {
+  background: #1f2933;
+  color: #ffffff;
+  padding: 40px 32px 64px;   /* 👈 MÁS padding abajo */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Curva inferior */
+.app-header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 80px;                 /* ⬅️ curva más suave */
+  background: #f1f3f6;
+  border-top-left-radius: 120% 80px;
+  border-top-right-radius: 0;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.5rem;     /* un pelín más moderna */
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+
+.app-container {
+  max-width: 900px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+/* ======================================================
+   TARJETAS (ERP STYLE)
+====================================================== */
+
+.card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 26px 30px;
+  margin: 24px auto;
+  max-width: 760px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+}
+
+.card h2 {
+  margin: 0 0 18px 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.card h3 {
+  margin: 26px 0 14px 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.card p {
+  margin: 6px 0;
+  color: #374151;
+}
+
+/* ======================================================
+   FORMULARIOS
+====================================================== */
+
+form {
+  margin-top: 18px;
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+input,
+select {
+  width: 100%;
+  height: 42px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+}
+
+/* ======================================================
+   GRID FORMULARIO (COBROS)
+====================================================== */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+  margin-top: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* aire vertical extra entre filas */
+.field + .field {
+  margin-top: 4px;
+}
+
+/* ======================================================
+   ACCIONES / BOTONES
+====================================================== */
+
+.form-actions {
+  margin-top: 32px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+/* BOTÓN PRINCIPAL */
+button {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 11px 22px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+/* BOTÓN SECUNDARIO (links tipo volver) */
+a.button,
+button.secondary {
+  background: #e5e7eb;
+  color: #1f2933;
+  text-decoration: none;
+  padding: 11px 20px;
+  border-radius: 7px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+a.button:hover,
+button.secondary:hover {
+  background: #d1d5db;
+}
+
+/* ======================================================
+   CABECERA USUARIO (ARRIBA DERECHA)
+====================================================== */
+
+.top-user {
+  max-width: 760px;
+  margin: 12px auto 0;
+  text-align: right;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.top-user a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.top-user a:hover {
+  text-decoration: underline;
+}
+
+/* ======================================================
+   MENSAJES DE ESTADO
+====================================================== */
+
+.card.success {
+  border-left: 5px solid #16a34a;
+}
+
+.card.success h2 {
+  color: #166534;
+}
+
+.card.warning {
+  border-left: 5px solid #d97706;
+}
+
+.card.error {
+  border-left: 5px solid #dc2626;
+}
+
+/* ======================================================
+   SPINNER
+====================================================== */
+
 #spinner {
-  display: none;          /* <- clave */
+  display: none;
   align-items: center;
   gap: 10px;
   font-weight: 500;
-  color: #444;
-  margin-top: 12px;
+  color: #4b5563;
+  margin-top: 14px;
 }
 
 .loader {
   width: 18px;
   height: 18px;
-  border: 3px solid #ccc;
-  border-top: 3px solid #333;
+  border: 3px solid #d1d5db;
+  border-top: 3px solid #2563eb;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+/* ===== LOGIN PROFESIONAL ===== */
+
+.login-card {
+  max-width: 420px;
+  margin: 80px auto;
+  padding: 32px;
+  text-align: left;
+}
+
+.login-card h2 {
+  margin-bottom: 6px;
+  font-size: 1.4rem;
+  color: #1f2933;
+}
+
+.login-subtitle {
+  margin-top: 0;
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* Inputs del login */
+.login-card .field {
+  margin-bottom: 20px;
+}
+
+.login-card input {
+  background: #f9fafb;
+}
+
+/* Botón principal */
+.login-card .form-actions {
+  margin-top: 28px;
+}
+
+.login-card button {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+}
+
+/* Fondo y centrado general */
+body {
+  background: linear-gradient(
+    180deg,
+    #eef2f6 0%,
+    #f4f6f8 100%
+  );
+}
+
+/* ===== LOGIN ===== */
+
+.login-card {
+  max-width: 420px;
+  margin: 60px auto;
+  text-align: center;
+}
+
+.login-card h2 {
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  margin-bottom: 28px;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* Más aire entre campos */
+.login-card .field {
+  margin-bottom: 22px;
+  text-align: left;
+}
+
+/* Botón grande y centrado */
+.login-actions {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.login-button {
+  width: 100%;
+  max-width: 220px;
+  padding: 12px 0;
+  font-size: 15px;
+  border-radius: 8px;
+}
+
+/* ===== BUSCAR FACTURA (MISMA ANCHURA QUE LOGIN) ===== */
+
+.search-card {
+  max-width: 420px;
+}
+
+/* Separación input / botón en buscar factura */
+.search-card form button {
+  margin-top: 16px;
+}
+
+/* ======================================================
+   SEPARACIÓN REAL BOTONES (BUSCAR + REGISTRAR COBRO)
+====================================================== */
+
+/* Cualquier botón dentro de un formulario */
+form button {
+  display: inline-block;
+  margin-top: 18px;   /* 👈 separación REAL respecto al input */
+}
+
+/* Evita que quede pegado visualmente */
+form input + button,
+form select + button {
+  margin-top: 18px;
+}
+
+/* Enlaces tipo Volver junto a botones */
+form a {
+  margin-top: 18px;
+  display: inline-block;
+}
+
+/* ======================================================
+   ESPACIADO REAL ENTRE CAMPOS Y BOTONES (FIX DEFINITIVO)
+====================================================== */
+
+/* Da aire entre inputs/selects */
+form input,
+form select {
+  margin-bottom: 18px;
+}
+
+/* Botones siempre separados del último campo */
+form button {
+  display: inline-block;
+  margin-top: 10px;
+}
+
+/* Separación horizontal entre botón y enlaces tipo "Volver" */
+form button + a,
+form a + button {
+  margin-left: 14px;
+}
+
+/* Buscar factura: mismo ancho que login */
+.search-card {
+  max-width: 420px;
+}
+
+/* Buscar factura: botón NO pegado */
+.search-card form button {
+  margin-top: 14px;
+}
+
+/* ======================================================
+   FIX DEFINITIVO ESPACIADO FORMULARIOS
+   (buscar factura + registrar cobro)
+====================================================== */
+
+/* TODOS los inputs y selects con aire inferior */
+form input,
+form select {
+  margin-bottom: 22px !important;
+}
+
+/* Botones siempre separados del último campo */
+form button {
+  margin-top: 18px !important;
+}
+
+/* Enlaces tipo "Volver" separados del botón */
+form button + a {
+  margin-left: 16px !important;
+}
+
+/* Tarjeta buscar factura = ancho login */
+.search-card {
+  max-width: 420px !important;
+}
+
+/* Evitar que el botón se "pegue visualmente" */
+.search-card form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ======================================================
+   BOTONES SECUNDARIOS ERP (VOLVER / CANCELAR / SALIR)
+====================================================== */
+
+.button.secondary,
+a.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e5e7eb;
+  color: #1f2933;
+  text-decoration: none;
+  padding: 11px 18px;
+  border-radius: 7px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background 0.15s ease;
+}
+
+.button.secondary:hover,
+a.secondary:hover {
+  background: #d1d5db;
+}
+
+/* Asegura separación vertical cuando están debajo de inputs */
+.form-actions .secondary {
+  margin-left: 0;
+}
+
+/* ===== Mensajes + acciones en tarjetas (errores / avisos) ===== */
+.card .status-line{
+  margin: 0 0 14px 0;
+}
+
+.card .form-actions{
+  margin-top: 18px;
+}
+
+/* Si el botón está suelto dentro de la card (sin form-actions), al menos que no quede pegado */
+.card a.button.secondary{
+  margin-top: 14px;
 }
